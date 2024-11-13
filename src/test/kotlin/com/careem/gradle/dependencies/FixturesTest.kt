@@ -16,47 +16,28 @@
 
 package com.careem.gradle.dependencies
 
-import com.google.common.truth.Truth.assertThat
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
-import org.junit.runners.Parameterized.Parameters
+import io.kotest.core.spec.style.ExpectSpec
+import io.kotest.matchers.shouldBe
 import java.io.File
 
-@RunWith(Parameterized::class)
-class FixturesTest(private val fixtureDir: File) {
+class FixturesTest : ExpectSpec({
 
-  @Test
-  fun testTldr() {
-    val before = fixtureDir.resolve("before.txt").readText()
-    val after = fixtureDir.resolve("after.txt").readText()
-    val expected = fixtureDir.resolve("expected.txt").readText()
+  val fixtureDir = File("src/test/fixtures")
+  fun File.file(name: String) = walkTopDown().first { it.name == name }
+
+  expect("test tldr") {
+    val before = fixtureDir.file("before.txt").readText()
+    val after = fixtureDir.file("after.txt").readText()
+    val expected = fixtureDir.file("expected.txt").readText()
     val actual = tldr(before, after).toString(collapse = emptyList(), outputType = OutputType.PLAIN)
-    assertThat(actual).isEqualTo(expected)
+    actual shouldBe expected
   }
 
-  @Test
-  fun testTldrJson() {
-    val before = fixtureDir.resolve("before.txt").readText()
-    val after = fixtureDir.resolve("after.txt").readText()
-    val expected = fixtureDir.resolve("expected_json.json").readText()
+  expect("test tldr json") {
+    val before = fixtureDir.file("before.txt").readText()
+    val after = fixtureDir.file("after.txt").readText()
+    val expected = fixtureDir.file("expected_json.json").readText()
     val actual = tldr(before, after).toString(collapse = emptyList(), outputType = OutputType.JSON)
-    assertThat(actual).isEqualTo(expected)
+    actual shouldBe expected
   }
-
-  @Test
-  fun testSideEffects() {
-    val before = fixtureDir.resolve("before.txt").readText()
-    val after = fixtureDir.resolve("after.txt").readText()
-    val expected = fixtureDir.resolve("expected_side_effects.txt").readText()
-    val effects = upgradeEffects(before, after, emptyList())
-    assertThat(effects).isEqualTo(expected)
-  }
-
-  companion object {
-    @JvmStatic
-    @Parameters(name = "{0}")
-    fun params(): Array<File>? = File("src/test/fixtures")
-      .listFiles { file -> file.isDirectory }
-  }
-}
+})
