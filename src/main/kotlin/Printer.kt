@@ -60,7 +60,7 @@ private fun StringBuilder.writeList(title: String, list: List<VersionedDependenc
             if (it.version.isNotBlank()) {
                 append(":")
                 append(it.version)
-                it.alternativeVersion?.let { altVersion -> append(", (changed from $altVersion)") }
+                it.alternativeVersion?.let { altVersion -> append(" (previously $altVersion)") }
             }
             append("\n")
         }
@@ -96,7 +96,7 @@ private fun collapseDependencies(
     val remove = mutableSetOf<VersionedDependency>()
 
     collapses.forEach { collapse ->
-        val matchingToCollapse = dependencies.filter { it.artifact.startsWith(collapse) }
+        val matchingToCollapse = dependencies.filter { it.group == collapse }
         val versions = matchingToCollapse.map { it.version }.toSet().size
         if (versions == 1) {
             remove.addAll(matchingToCollapse)
