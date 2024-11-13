@@ -14,55 +14,38 @@
 * limitations under the License.
 */
 
-@file:JvmName("DependencyTreeTldr")
-
 package com.careem.gradle.dependencies
-
-import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.parameters.arguments.argument
-import com.github.ajalt.clikt.parameters.options.default
-import com.github.ajalt.clikt.parameters.options.flag
-import com.github.ajalt.clikt.parameters.options.multiple
-import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.types.path
-import kotlin.io.path.readText
-
-class Tldr : CliktCommand(name = "dependency-diff-tldr") {
-  private val sideEffects by option(
-    "-s",
-    "--side-effects",
-    help = "Print out any side effects of upgrading the dependencies."
-  ).flag()
-  private val collapse: List<String> by option(
-    "-c",
-    "--collapse",
-    help = "Collapse packages with a matching group under a group.*. Collapsing " +
-        "will only occur if all version numbers match. (ex --collapse com.careem.ridehail --collapse com.careem.now)."
-  ).multiple()
-  private val output by option(
-    "-o",
-    "--output",
-    help = "Output type, \"plain\" and \"json\" are supported"
-  ).default("plain")
-
-  private val old by argument("old.txt").path(mustExist = true)
-  private val new by argument("new.txt").path(mustExist = true)
-
-  override fun run() {
-    val oldContents = old.readText()
-    val newContents = new.readText()
-    print(tldr(oldContents, newContents).toString(collapse, outputType = output.toOutputType()))
-    if (sideEffects) {
-      val upgradeEffects = upgradeEffects(oldContents, newContents, collapse)
-      if (upgradeEffects.isNotEmpty()) {
-        println()
-        println("Upgrade Side Effects")
-        print(upgradeEffects)
-      }
-    }
-  }
-}
+import kotlinx.cli.ArgParser
+import kotlinx.cli.ArgType
+import kotlinx.cli.default
+import kotlinx.cli.optional
+import kotlinx.cli.vararg
+import java.io.File
 
 fun main(args: Array<String>) {
-  Tldr().main(args)
+
+  val parser = ArgParser("gradle-dependency-diff")
+
+  val old by parser.option(ArgType.String, "old", "o", "Path to the old dependency list").default("")
+  val new by parser.option(ArgType.String, "new", "n", "Path to the new dependency list").default("")
+
+  val outputFormat by parser.option(ArgType.String, fullName = "output-format", shortName = "f", description = "Output type, \"plain\" and \"json\" are supported").default("plain")
+  val sideEffects by parser.option(ArgType.Boolean, fullName = "side-effects", shortName = "s", description = "Print out any side effects of upgrading the dependencies").default(false)
+  val collapsePackages by parser.argument(ArgType.String, fullName = "collapse-packages", description = "Collapse packages with a matching group under a group.*. Collapsing will only occur if all version numbers match. (ex --collapse org.example.math --collapse org.example.time).").vararg().optional()
+
+  parser.parse(args)
+
+  val oldContents = File(old).readText()
+  val newContents = File(new).readText()
+
+  print(tldr(oldContents, newContents).toString(collapsePackages, outputType = outputFormat.toOutputType()))
+
+  if (sideEffects) {
+    val upgradeEffects = upgradeEffects(oldContents, newContents, collapsePackages)
+    if (upgradeEffects.isNotEmpty()) {
+      println()
+      println("Upgrade Side Effects")
+      print(upgradeEffects)
+    }
+  }
 }
