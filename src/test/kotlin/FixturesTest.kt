@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-package com.careem.gradle.dependencies
 
+import OutputType
 import io.kotest.core.spec.style.ExpectSpec
 import io.kotest.matchers.shouldBe
 import java.io.File

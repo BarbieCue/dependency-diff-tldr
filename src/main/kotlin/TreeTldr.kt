@@ -14,8 +14,6 @@
 * limitations under the License.
 */
 
-package com.careem.gradle.dependencies
-
 fun tldr(old: String, new: String): VersionDifferences {
   return dependencyDifferences(old, new)
 }

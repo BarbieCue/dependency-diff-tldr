@@ -14,7 +14,6 @@
 * limitations under the License.
 */
 
-package com.careem.gradle.dependencies
 import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
 import kotlinx.cli.default

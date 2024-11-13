@@ -14,8 +14,6 @@
 * limitations under the License.
 */
 
-package com.careem.gradle.dependencies
-
 data class Dependency(
     val group: String,
     val name: String,

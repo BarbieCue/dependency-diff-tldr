@@ -13,7 +13,7 @@ dependencies {
   implementation(libs.kotlinx.cli)
 }
 
-val mainClassName = "com.careem.gradle.dependencies.DependencyTreeTldr"
+val mainClassName = "ApplicationKt"
 
 application {
   mainClass.set(mainClassName)

@@ -14,8 +14,6 @@
 * limitations under the License.
 */
 
-package com.careem.gradle.dependencies
-
 fun upgradeEffects(old: String, new: String, collapseKeys: List<String>): String {
     val (_, _, upgrades) = dependencyDifferences(old, new)
     return if (upgrades.isNotEmpty()) {
