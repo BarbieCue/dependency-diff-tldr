@@ -17,8 +17,6 @@
 import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
 import kotlinx.cli.default
-import kotlinx.cli.optional
-import kotlinx.cli.vararg
 import java.io.File
 
 fun main(args: Array<String>) {
@@ -30,12 +28,13 @@ fun main(args: Array<String>) {
 
   val outputFormat by parser.option(ArgType.String, fullName = "output-format", shortName = "f", description = "Output type, \"plain\" and \"json\" are supported").default("plain")
   val sideEffects by parser.option(ArgType.Boolean, fullName = "side-effects", shortName = "s", description = "Print out any side effects of upgrading the dependencies").default(false)
-  val collapsePackages by parser.argument(ArgType.String, fullName = "collapse-packages", description = "Collapse packages with a matching group under a group.*. Collapsing will only occur if all version numbers match. (ex --collapse org.example.math --collapse org.example.time).").vararg().optional()
+  val collapse by parser.option(ArgType.String, fullName = "collapse", shortName = "c", description = "Collapse packages of the same group and version. Example: \"org.example.math\"").default("")
 
   parser.parse(args)
 
   val oldContents = File(old).readText()
   val newContents = File(new).readText()
+  val collapsePackages = collapse.split(" ")
 
   print(tldr(oldContents, newContents).toString(collapsePackages, outputType = outputFormat.toOutputType()))
 

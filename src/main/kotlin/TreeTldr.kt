@@ -64,7 +64,7 @@ data class VersionedDependency(
   val version: String,  // 1.6.0
   val alternativeVersion: String? = null // 1.5.0
 ) {
-  val group by lazy { artifact.substringBefore(':').trim() }
+  val group by lazy { artifact.substringBefore(':').trim() } // org.jetbrains.kotlinx
 }
 
 data class VersionDifferences(
@@ -98,6 +98,7 @@ private fun partitionDifferences(
   for ((artifact, version) in mutableRemovedMap) {
     removals.add(VersionedDependency(artifact, version))
   }
+
   return VersionDifferences(
     additions.sortedBy { it.artifact },
     removals.sortedBy { it.artifact },
