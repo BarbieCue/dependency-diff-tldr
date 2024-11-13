@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.careem.gradle.dependencies.common.parser
+package com.careem.gradle.dependencies
 
 data class Dependency(
     val group: String,
@@ -36,8 +36,7 @@ fun parseDependencyTree(dependenciesFile: String): List<Dependency> {
 private fun parseDependenciesForIndent(dependencyLines: List<String>, indent: Int): List<Dependency> {
     val linesForIndent = dependencyLines
         .takeWhile { it.indexOf("--- ") >= indent }
-        // remove dependency constraints, since they're not actual dependencies
-        .filter { "(c)" !in it }
+        .filter { "(c)" !in it } // remove dependency constraints, since they're not actual dependencies
 
     return linesForIndent
         .mapIndexedNotNull { index, dependencyLine ->
@@ -74,7 +73,7 @@ private fun parseDependency(dependencyLine: String): Dependency {
         artifactBase.startsWith("project ") -> {
             artifactBase
         }
-        // example: com.careem.superapp.lib:base -> 1.26.0 (*)
+        // example: org.example.lib:base -> 1.26.0 (*)
         noVersionInBase -> {
             artifactBase.substringBefore(' ')
         }

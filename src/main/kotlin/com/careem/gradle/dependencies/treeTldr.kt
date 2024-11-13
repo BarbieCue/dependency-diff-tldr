@@ -42,7 +42,7 @@ private fun extractDependencies(deps: String): Set<VersionedDependency> {
     .filter { !it.startsWith("project ") }
     .map { artifactBase ->
       val noVersion = artifactBase.indexOf(':') == artifactBase.lastIndexOf(':')
-      val artifact = when {
+      val artifact = when { // org.jetbrains.kotlinx:kotlinx-coroutines-android
         noVersion -> {
           artifactBase.substringBefore(' ')
         }
@@ -50,8 +50,8 @@ private fun extractDependencies(deps: String): Set<VersionedDependency> {
           artifactBase.substringBeforeLast(':')
         }
       }
-      val versionInfo = artifactBase.substringAfterLast(':')
-      val canonicalVersionInfo = when {
+      val versionInfo = artifactBase.substringAfterLast(':') // 1.6.0 (c)
+      val canonicalVersionInfo = when { // 1.6.0
         "->" in versionInfo -> versionInfo.substringAfter("-> ").substringBefore(' ')
         "(*)" in versionInfo || "(c)" in versionInfo -> versionInfo.substringBefore(" (")
         else -> versionInfo
@@ -61,9 +61,14 @@ private fun extractDependencies(deps: String): Set<VersionedDependency> {
     .toSet()
 }
 
-data class VersionedDependency(val artifact: String, val version: String, val alternativeVersion: String? = null) {
+data class VersionedDependency(
+  val artifact: String, // org.jetbrains.kotlinx:kotlinx-coroutines-android
+  val version: String,  // 1.6.0
+  val alternativeVersion: String? = null // 1.5.0
+) {
   val group by lazy { artifact.substringBefore(':').trim() }
 }
+
 data class VersionDifferences(
   val additions: List<VersionedDependency>,
   val removals: List<VersionedDependency>,
@@ -78,14 +83,13 @@ private fun partitionDifferences(
   val upgrades = mutableListOf<VersionedDependency>()
   val removals = mutableListOf<VersionedDependency>()
 
-  val mutableRemovedMap = removed.map { it.artifact to it.version }.toMap(mutableMapOf())
+  val mutableRemovedMap = removed.associateTo(mutableMapOf()) { it.artifact to it.version }
   for ((artifact, version) in added) {
     val removedVersion = mutableRemovedMap[artifact]
     when {
       removedVersion != null -> {
         mutableRemovedMap.remove(artifact)
-        upgrades.add(
-          VersionedDependency(artifact, version, alternativeVersion = removedVersion))
+        upgrades.add(VersionedDependency(artifact, version, alternativeVersion = removedVersion))
       }
       else -> {
         additions.add(VersionedDependency(artifact, version))
