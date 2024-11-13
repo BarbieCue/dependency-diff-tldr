@@ -1,1 +1,1 @@
-rootProject.name = "dependency-diff-tldr"
+rootProject.name = "gradle-dependency-diff"
